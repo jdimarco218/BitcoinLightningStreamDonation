@@ -1,20 +1,18 @@
 import axios from 'axios';
 var xssFilters = require('xss-filters');
-var baseCost = 1000;
+var baseCost = 10;
 
-const url = 'api/posts/';
-const captionUrl = 'api/posts/captions/';
-const port = process.env.VUE_APP_SERVER_PORT || 8082;
-const host = process.env.VUE_APP_SERVER_HOST || "69.141.47.76";
-const postCostUrl = `http://${host}:${port}/${url}/cost`;
-const captionCostUrl = `http://${host}:${port}/${url}/captions/cost`;
+const port = process.env.VUE_APP_SERVER_PORT || 8081;
+//const host = process.env.VUE_APP_SERVER_HOST || "69.141.47.76";
+const host = process.env.VUE_APP_SERVER_HOST || "localhost";
+const url = `http://${host}:${port}/api/requests/`;
 const apiKey = process.env.OPENNODE_APIKEY;
 const opennodeAuth = process.env.OPENNODE_APIKEY;
 console.log(`apiKey at top: ${apiKey}`);
 
 class RequestsService {
     // Get Posts
-    static getPosts() {
+    static getRequests() {
         return new Promise(async (resolve, reject) => {
             try {
                 const res = await axios.get(url);
@@ -31,76 +29,42 @@ class RequestsService {
         });
     }
 
-    // Get Most Recent Post
-    static getMostRecentPost() {
-        return new Promise(async (resolve, reject) => {
-            try {
-                var result = 'https://i.imgur.com/viVcTZ5.png';
-                const mainPostUrl = 'api/posts/main/';
-                const res = await axios.get(mainPostUrl);
-                console.log('res from main: ');
-                console.log(res.data);
-                resolve(res.data);
-            } catch(err) {
-                reject(err);
-            }
-        });
-    }
-
-    // Get Most Recent Caption
-    static getMostRecentCaption() {
-        return new Promise(async (resolve, reject) => {
-            try {
-                var result = 'Lightning Caption';
-                const mainCaption = 'api/posts/main/caption';
-                const res = await axios.get(mainCaption);
-                console.log('res from main caption: ');
-                console.log(res.data);
-                resolve(res.data);
-            } catch(err) {
-                reject(err);
-            }
-        });
-    }
-
-    // Create Post
-    static async insertPost(text){
+    // Create Request
+    static async insertRequest(text){
         if (true) {
             var postAmount = baseCost;
             text = xssFilters.inHTMLData(text);
-            var costRes = await new Promise(async (res, rej) => {
-                try {
-                    var costRes = await axios.get(postCostUrl);
-                    console.log('res from cost url: ');
-                    console.log(costRes.data);
-                    postAmount = costRes.data;
-                    res(costRes.data);
+            //var costRes = await new Promise(async (res, rej) => {
+            //    try {
+            //        var costRes = await axios.get(postCostUrl);
+            //        console.log('res from cost url: ');
+            //        console.log(costRes.data);
+            //        postAmount = costRes.data;
+            //        res(costRes.data);
 
-                } catch(err) {
-                    rej(err);
-                }
-            });
-            console.log(`postAmount: ${postAmount.data}`);
+            //    } catch(err) {
+            //        rej(err);
+            //    }
+            //});
+            //console.log(`requestAmount: ${postAmount.data}`);
             var headers = {
                     'Content-Type': 'application/json',
-                    'Authorization': `${process.env.OPENNODE_APIKEY}`
+                    'Authorization': 'bd5ecb21-6fba-4cfa-949c-a5c70149ad27'
             };
-            var body = `{ \"amount\": ${postAmount}, \"callback_url\": \"http://${host}:${port}/api/posts/update\" }`;
+            var body = `{ \"amount\": ${postAmount}, \"callback_url\": \"http://${host}:${port}/api/requests/update\" }`;
 
             console.log(`time to do some lightning!`);
-            console.log(`AUTH: ${process.env.OPENNODE_APIKEY}`);
-            console.log(`apiKey: ${apiKey}`);
-            return axios.post('https://api.opennode.co/v1/charges', body, {headers: headers})
+            return axios.post('https://dev-api.opennode.co/v1/charges', body, {headers: headers})
             .then(function (response) {
                 if (response.status === 201) {
                     console.log(`new charge_id: ${response.data.data.id}`);
                     axios.post(url, {
-                        text: text,
+                        video: text,
                         charge_id: response.data.data.id
                     });
                 }
                 console.log(response);
-                console.log(`insertPost returning: ${response.data.data.lightning_invoice.payreq}`);
+                console.log(`insertRequest returning: ${response.data.data.lightning_invoice.payreq}`);
                 return response.data.data.lightning_invoice.payreq;
             })
             .catch(function (error) {

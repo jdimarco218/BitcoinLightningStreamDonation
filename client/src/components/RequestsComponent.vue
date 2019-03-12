@@ -2,7 +2,7 @@
   <div class="container">
   <div class="topnav">
     <img class="topimg" src="../assets/lightningEmojiSmall.png">
-    <div class="titleText ml-3 text-x1 text-grey-darker" href="#">Lightning Image</div>
+    <div class="titleText ml-3 text-x1 text-grey-darker" href="#">Lightning Stream Media Request</div>
       <div class="topnav-right">
         <a href="#" class="btn-sm" v-b-modal.modal-faq>FAQ</a>
         <b-modal ref="faqModal" id="modal-faq" ok-only cenetered scrollable title="FAQ">
@@ -14,43 +14,31 @@
       </div>
   </div>
   <body class="jBod">
-    <b-img center class="var-image center-block" v-bind:src='imgURL'/>
-    <div style="text-align:center;" class='caption-content'> {{ caption }} </div>
-    <hr>
-    <div class="create-post">
-      <div class = "row text-center">
-      <input class="create-post-input" type="text" id="create- post" v-model="text" placeholder="Enter YouTube video url">
-      <button class="create-post-btn" v-on:click="createPost" v-b-modal.modal-tall>Post for {{100}} sats</button>
+    <div class="form-group">
+      <label style="color:white;">YouTube Video URL</label>
+      <input type="text" v-model="text" class="form-control" placeholder="Enter a YouTube URL">
+    </div>
+    <div class="form-group">
+      <label style="color:white;">Number of seconds</label>
+      <input type="text" v-model="seconds" class="form-control" placeholder="Enter # of seconds to play">
+    </div>
+    <input type="submit" v-on:click="createRequest" v-b-modal.modal-tall class="btn btn-primary" value="Submit">
+
       <!-- Modal Component -->
-      <b-modal ref="imageModal" id="modal-tall" ok-only centered scrollable title="Lightning invoice">
+      <b-modal ref="requestModal" id="modal-tall" ok-only centered scrollable title="Lightning invoice">
         <p class="my-4">{{this.invoice}}</p>
         <hr>
         <p>
-        <qrcode v-if="showPostQR" :value='invoice' :options="{ width: 200 }"></qrcode>
+        <qrcode v-if="showRequestQR" :value='invoice' :options="{ width: 200 }"></qrcode>
         </p>
       </b-modal>
-      </div>
-    </div>
-    <hr>
-    <div class="create-post-2">
-      <div class = "row text-center">
-          <input class="create-post-input" type="text" id="create-post-2" v-model="inputCaption" placeholder="Enter caption" maxlength="100">
-          <button class="create-post-btn" v-on:click="createCaption" v-b-modal.modal-tall-caption>Post for {{captionCost}} sats</button>
-          <b-modal ref="captionModal" id="modal-tall-caption" ok-only centered scrollable title="Lightning invoice">
-            <p class="my-4">{{this.invoice2}}</p>
-            <hr>
-            <p>
-            <qrcode :value='invoice2' :options="{ width: 200 }"></qrcode>
-            </p>
-          </b-modal>
-      </div>
-    </div>
     <hr>
     <p class="error" v-if="error">{{error}}</p>
   </body>
   </div>
 </template>
 
+<script src="http://cdn.socket.io/stable/socket.io.js"></script>
 <script>
 import RequestsService from '../RequestsService';
 export default {
@@ -60,73 +48,69 @@ export default {
   },
   data() {
     return {
-      posts: [],
+      requests: [],
       error: '',
       text: '',
-      imgURL: 'https://imgur.com/gallery/viVcTZ5',
+      seconds: '',
       invoice: 'Loading...',
-      showPostQR: true,
-      invoice2: 'Loading...',
-      showCaptionQR: true,
-      inputCaption: '',
-      caption: 'Lightning Caption',
-      imgCost: '1000',
-      captionCost: '1000'
+      showRequestQR: true,
+      requestCost: '100'
+    }
+  },
+  sockets: {
+    connect() {
+      console.log("client connected to socket");
+    },
+    disconnect() {
+      console.log("client disconnected from socket");
+    },
+    message(data) {
+      console.log(`socket message: ${data}`);
+      if (this.text === data.message) {
+          this.closeRequestPopup();
+
+      }
+    },
+    captionMsg(data) {
+      console.log(`socket message: ${data}`);
+      this.getMostRecentCaption();
+      this.getCaptionCost();
+      this.closeCaptionPopup();
+      this.inputCaption = '';
     }
   },
   async created() {
     document.title = "Lightning Stream";
     try {
-      this.posts = await RequestsService.getPosts();
-      this.getMostRecentPost();
-      this.getMostRecentCaption();
-      this.getImageCost();
-      this.getCaptionCost();
+      this.requests = await RequestsService.getRequests();
+      //this.getMostRecentPost();
+      //this.getMostRecentCaption();
+      //this.getImageCost();
+      //this.getCaptionCost();
     } catch(err) {
       this.error = err.message;
     }
   },
   methods: {
-    async createPost() {
+    async createRequest() {
       this.error = '';
-      this.showPostQR = true;
+      this.showRequestQR = true;
       // TODO validation
       if (true) {
-        this.invoice = await RequestsService.insertPost(this.text);
-        this.posts = await RequestsService.getPosts();
-        await this.getMostRecentPost();
+        this.invoice = await RequestsService.insertRequest(this.text);
+        this.requests = await RequestsService.getRequests();
       } else {
-        this.showPostQR = false;
-        this.invoice = "Please enter a valid image URL";
-        console.log("invalid URL for post");
+        this.showRequestQR = false;
+        this.invoice = "Please enter a valid YouTube Video URL";
+        console.log("invalid URL for request");
       }
     },
-    async deletePost(id) {
-      await RequestsService.deletePost(id);
-      this.posts = await RequestsService.getPosts();
-      await this.getMostRecentPost();
+    async deleteRequest(id) {
+      await RequestsService.deleteRequest(id);
+      this.requests = await RequestsService.getRequests();
     },
-    async getMostRecentPost() {
-      this.imgURL = await RequestsService.getMostRecentPost();
-    },
-    async getMostRecentCaption() {
-      this.caption = await RequestsService.getMostRecentCaption();
-    },
-    async getImageCost() {
-      this.imgCost = await RequestsService.getImageCost();
-    },
-    async getCaptionCost() {
-      this.captionCost = await RequestsService.getCaptionCost();
-    },
-    async createCaption() {
-      this.invoice2 = await RequestsService.insertCaption(this.inputCaption);
-      await this.getMostRecentCaption();
-    },
-    async closePostPopup() {
-      this.$refs.imageModal.hide();
-    },
-    async closeCaptionPopup() {
-      this.$refs.captionModal.hide();
+    async closeRequestPopup() {
+      this.$refs.requestModal.hide();
     }
   }
 
@@ -150,7 +134,7 @@ div.titleText {
   float: left;
   color: #f2f2f2;
   text-align: center;
-  padding: 22px 0px;
+  padding: 17px 0px;
   text-decoration: none;
   font-size: 14px;
 }
@@ -159,7 +143,7 @@ div.titleText {
   float: left;
   color: #f2f2f2;
   text-align: center;
-  padding: 22px 35px;
+  padding: 17px 35px;
   text-decoration: none;
   font-size: 14px;
 }
@@ -167,6 +151,7 @@ div.titleText {
 .jBod {
   background-color: transparent;
   height: 100%;
+  padding-top: 60px;
 }
 
 .modal-body p {
@@ -190,19 +175,20 @@ div.titleText {
 img.topimg {
   height: 20px;
   margin-left: 28px;
-  margin-top: 22px;
+  margin-top: 17px;
   float: left;
 }
 
 div.topnav {
-  background-color: rgb(140, 140, 140);
+  background-color: #22133fb4;
   overflow: hidden;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: 55px;
-  box-shadow: 0 0 25px 0 rgb(140, 140, 140);
+  /*box-shadow: 0 0 25px 0 darkblue;
+  */
 }
 
 div.header-right {
@@ -212,6 +198,7 @@ div.header-right {
 body {
   margin-top: 0px;
   padding: 10px;
+  overflow:hidden;
 }
 
 p.error {

@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
     <RequestsComponent />
   </div>
 </template>
@@ -18,14 +17,15 @@ export default {
 
 <style>
 #app {
-  /*font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  /*font-family: 'proxima-nova', 'Roboto';
   */
-  font-family: 'proxima-nova', 'Roboto';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
   background-image: url(https://cdn.streamelements.com/static/user/background_default.jpg);
+  height: 100vh;
 
 }
 </style>
