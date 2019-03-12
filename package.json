@@ -1,0 +1,33 @@
+{
+  "name": "bitcoinlightningstreamdonation",
+  "version": "1.0.0",
+  "description": "Lightning BTC donation page to queue media on twitch streams",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jdimarco218/BitcoinLightningStreamDonation.git"
+  },
+  "keywords": [
+    "Bitcoin",
+    "Lightning",
+    "Twitch"
+  ],
+  "author": "Jeff DiMarco",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jdimarco218/BitcoinLightningStreamDonation/issues"
+  },
+  "homepage": "https://github.com/jdimarco218/BitcoinLightningStreamDonation#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "mongodb": "^3.1.13",
+    "nodemon": "^1.18.10",
+    "vue": "^2.6.8"
+  }
+}
