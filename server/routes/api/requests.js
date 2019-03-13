@@ -115,4 +115,29 @@ async function loadRequestsCollection() {
     }
 }
 
+var prevSongId = '';
+var currSongId = '';
+var currDuration = 0;
+setInterval(async() => {
+    const getSongInfoUrl = 'https://api.streamelements.com/kappa/v2/songrequest/5c86b7740ba7952f06384482/playing';
+    await axios.get(getSongInfoUrl, { headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${streamElementsJWT}`
+    }})
+    .then(response => {
+        currSongId = response.data._id;
+        if (currSongId != prevSongId) {
+            currDuration = 0;
+            prevSongId = currSongId;
+            console.log(`New song detected! Resetting currDuration to 0`);
+        } else {
+            currDuration += 1; // Seconds of this interval
+            console.log(`currDuration: ${currDuration}`);
+        }
+    })
+    .catch((error) => {
+        console.log(`Playing info error: ${error}`);
+    });
+}, 1000);
+
 module.exports = router;
