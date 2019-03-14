@@ -3,12 +3,10 @@ var xssFilters = require('xss-filters');
 var baseCost = 10;
 
 const port = process.env.VUE_APP_SERVER_PORT || 8081;
-//const host = process.env.VUE_APP_SERVER_HOST || "69.141.47.76";
 const host = process.env.VUE_APP_SERVER_HOST || "localhost";
 const url = `http://${host}:${port}/api/requests/`;
 const apiKey = process.env.OPENNODE_APIKEY;
 const opennodeAuth = process.env.OPENNODE_APIKEY;
-console.log(`apiKey at top: ${apiKey}`);
 
 class RequestsService {
     // Get Posts
@@ -34,19 +32,6 @@ class RequestsService {
         if (true) {
             var postAmount = baseCost;
             text = xssFilters.inHTMLData(text);
-            //var costRes = await new Promise(async (res, rej) => {
-            //    try {
-            //        var costRes = await axios.get(postCostUrl);
-            //        console.log('res from cost url: ');
-            //        console.log(costRes.data);
-            //        postAmount = costRes.data;
-            //        res(costRes.data);
-
-            //    } catch(err) {
-            //        rej(err);
-            //    }
-            //});
-            //console.log(`requestAmount: ${postAmount.data}`);
             var headers = {
                     'Content-Type': 'application/json',
                     'Authorization': 'bd5ecb21-6fba-4cfa-949c-a5c70149ad27'

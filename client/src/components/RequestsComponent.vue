@@ -41,6 +41,7 @@
 <script src="http://cdn.socket.io/stable/socket.io.js"></script>
 <script>
 import RequestsService from '../RequestsService';
+import axios from 'axios';
 export default {
   name: 'RequestsComponent',
   title () {
@@ -53,7 +54,7 @@ export default {
       text: '',
       seconds: '',
       invoice: 'Loading...',
-      showRequestQR: true,
+      showRequestQR: false,
       requestCost: '100'
     }
   },
@@ -68,7 +69,6 @@ export default {
       console.log(`socket message: ${data}`);
       if (this.text === data.message) {
           this.closeRequestPopup();
-
       }
     },
     captionMsg(data) {
@@ -83,10 +83,6 @@ export default {
     document.title = "Lightning Stream";
     try {
       this.requests = await RequestsService.getRequests();
-      //this.getMostRecentPost();
-      //this.getMostRecentCaption();
-      //this.getImageCost();
-      //this.getCaptionCost();
     } catch(err) {
       this.error = err.message;
     }
@@ -94,15 +90,28 @@ export default {
   methods: {
     async createRequest() {
       this.error = '';
-      this.showRequestQR = true;
-      // TODO validation
-      if (true) {
+      this.invoice = 'Loading...';
+      this.showRequestQR = false;
+      var isValidRequest = false;
+      //
+      // Validate via the songrequest/youtube endpoing
+      //
+      const validateUrl = 'https://api.streamelements.com/kappa/v2/songrequest/youtube?videoId=' + this.text; 
+      var res = await axios.get(validateUrl)
+      .then(res => {
+        if (res.status == 200) {
+          isValidRequest = true;
+        }
+      })
+      .catch((error) => {
+        this.invoice = error;
+      });
+      if (isValidRequest) {
+        this.showRequestQR = true;
         this.invoice = await RequestsService.insertRequest(this.text);
         this.requests = await RequestsService.getRequests();
       } else {
-        this.showRequestQR = false;
         this.invoice = "Please enter a valid YouTube Video URL";
-        console.log("invalid URL for request");
       }
     },
     async deleteRequest(id) {
