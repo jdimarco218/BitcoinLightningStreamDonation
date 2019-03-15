@@ -1,5 +1,6 @@
 node_modules
 myDevEnv.sh
+.env
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
