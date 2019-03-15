@@ -5,6 +5,8 @@ const cors = require('cors');
 const app = express();
 var http = require('http');
 const port = process.env.PORT || 8081;
+const test = process.env.JEFF_TEST || "default";
+console.log(`${test}`);
 
 // Middleware
 app.use(bodyParser.json());
