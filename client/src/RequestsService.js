@@ -2,7 +2,7 @@ import axios from 'axios';
 var xssFilters = require('xss-filters');
 var baseCost = 10;
 
-const port = process.env.VUE_APP_SERVER_PORT || 8081;
+const port = process.env.VUE_APP_SERVER_PORT || 8086;
 const host = process.env.VUE_APP_SERVER_HOST || "localhost";
 const url = `http://${host}:${port}/api/requests/`;
 const apiKey = process.env.OPENNODE_APIKEY;
