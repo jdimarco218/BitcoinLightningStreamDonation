@@ -10,6 +10,7 @@ const host = process.env.VUE_APP_SERVER_HOST || "localhost";
 const port = process.env.VUE_APP_SERVER_PORT || 8081;
 console.log(`Frontend port: ${port}`);
 console.log(`Frontend host: ${host}`);
+console.log(`Base url: ${process.env.BASE_URL}`);
 
 Vue.component('qr-code', VueQRCodeComponent)
 Vue.component(VueQrcode.name, VueQrcode);
