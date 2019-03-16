@@ -8,6 +8,8 @@ import VueQrcode from '@chenfengyuan/vue-qrcode';
 
 const host = process.env.VUE_APP_SERVER_HOST || "localhost";
 const port = process.env.VUE_APP_SERVER_PORT || 8081;
+console.log(`Frontend port: ${port}`);
+console.log(`Frontend host: ${host}`);
 
 Vue.component('qr-code', VueQRCodeComponent)
 Vue.component(VueQrcode.name, VueQrcode);
