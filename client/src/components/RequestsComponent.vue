@@ -108,7 +108,7 @@ export default {
       });
       if (isValidRequest) {
         this.showRequestQR = true;
-        this.invoice = await RequestsService.insertRequest(this.text);
+        this.invoice = await RequestsService.insertRequest(this.text, this.seconds);
         this.requests = await RequestsService.getRequests();
       } else {
         this.invoice = "Please enter a valid YouTube Video URL";

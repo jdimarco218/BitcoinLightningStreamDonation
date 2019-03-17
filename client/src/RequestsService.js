@@ -1,6 +1,6 @@
 import axios from 'axios';
 var xssFilters = require('xss-filters');
-var baseCost = 10;
+var baseCost = 1;
 
 const port = process.env.VUE_APP_SERVER_PORT || 8086;
 const host = process.env.VUE_APP_SERVER_HOST || "localhost";
@@ -28,9 +28,9 @@ class RequestsService {
     }
 
     // Create Request
-    static async insertRequest(text){
+    static async insertRequest(text, amount){
         if (true) {
-            var postAmount = baseCost;
+            var postAmount = baseCost * amount;
             text = xssFilters.inHTMLData(text);
             var headers = {
                     'Content-Type': 'application/json',
