@@ -136,6 +136,7 @@ var prevSongId = '';
 var currSongId = '';
 var currDuration = 0;
 var durationToPlay = 0;
+var isOurSong = false;
 setInterval(async() => {
     var isNewSong = false;
     const getSongInfoUrl = 'https://api.streamelements.com/kappa/v2/songrequest/5c86b7740ba7952f06384482/playing';
@@ -174,9 +175,11 @@ setInterval(async() => {
             console.log("This song is from our db!");
             console.log(`amountPaid: ${dbSong.amountPaid}`);
             durationToPlay = dbSong.amountPaid;
+            isOurSong = true;
         } else {
             console.log("This new song is not ours.");
             durationToPlay = 0;
+            isOurSong = false;
         }
     }
     isNewSong = false;
@@ -200,6 +203,49 @@ setInterval(async() => {
         .catch(error => {
             console.log(`Error skipping song: ${error}`);
         });
+    }
+
+    //
+    // Here we handle the scenario where a backup song is playing and
+    // a new song is submitted. Lets skip the backup song and let the
+    // user hear their request now. Make sure the duration is a couple
+    // of seconds in to handle weird cases with delays
+    //
+    if (false &&
+        !isOurSong && currDuration > 8) {
+        var skipForUser = false;
+        const nextSongUrl = 'https://api.streamelements.com/kappa/v2/songrequest/5c86b7740ba7952f06384482/next';
+        await axios.get(nextSongUrl, {}, { headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${streamElementsJWT}`
+        }})
+        .then(response => {
+            if (response.data.hasOwnProperty("song") &&
+                response.data.song !== 'undefined' && 
+                response.data.song !== null) {
+                skipForUser = true;
+            } else {
+                skipForUser = false;
+            }
+
+        })
+        .catch(error => {
+            console.log(`Error getting next song info: ${error}`);
+        });
+        if (skipForUser) {
+            currDuration = 0;
+            const skipSongUrl = 'https://api.streamelements.com/kappa/v2/songrequest/5c86b7740ba7952f06384482/skip';
+            await axios.post(skipSongUrl, {}, { headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${streamElementsJWT}`
+            }})
+            .then(response => {
+                console.log(`we skipped the current backup song for a user song!: ${response}`);
+            })
+            .catch(error => {
+                console.log(`Error skipping song backup song for user song: ${error}`);
+            });
+        }
     }
 }, 1000);
 
